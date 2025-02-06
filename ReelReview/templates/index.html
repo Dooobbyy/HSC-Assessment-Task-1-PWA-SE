@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+    <p>Welcome to ReelReview. This website is dedicated to allowing people to write honest reviews about any movie they desire.</p>
+
+    {% if session['username'] %}
+    <br>
+    <p>Hello {{ session['username'] }}</p>
+    {% endif %}
+
+</div>
+
+<br>
+
+<table class="guess_table">
+
+    <thead>
+        <th>Movie Title</th>
+        <th>User</th>
+        <th>Date</th>
+        <th>Rating</th>
+        <th>User's Review</th>
+    </thead>
+
+    <tbody>
+        {% for review in reviews %}
+        <tr>
+            <td>{{ review[1] }}</td>       <!-- Movie Title -->
+            <td>{{ review[5] }}</td>       <!-- User -->
+            <td>{{ review[3] }}</td>       <!-- Date -->
+            <td>{{ review[4] }}/10</td>    <!-- Rating -->  
+            <td>{{ review[0] }}</td>       <!-- User Review -->
+        </tr>                               
+        {% endfor %}
+    </tbody>
+
+</table>
+
+{% endblock %}

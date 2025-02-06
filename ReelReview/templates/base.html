@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <!-- Allow inline scripts for this example (consider removing in production) -->
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';">
+  
+  <title>ReelReview</title>
+  
+  <link rel="stylesheet" href="static/css/style.css" />
+  <link rel="manifest" href="static/manifest.json" />
+  <link rel="icon" type="image/x-icon" href="static/images/favicon.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+  <h1 class="banner">ReelReview</h1>
+
+  <!-- Navigation -->
+  <nav>
+    {% if not session.get('username') %}
+      <a href="/login">Login</a>
+      <a href="/register">Register</a>
+    {% else %}
+      <a href="/logout">Logout</a>
+      <a href="{{ url_for('dashboard') }}">
+        <i class="fas fa-star"></i> Make Review
+      </a>
+      <a href="/">Home</a>
+      
+      <!-- Hidden form for deleting the account -->
+      <form id="deleteForm" action="/delete_account" method="POST" style="display: none;">
+        <!-- Include CSRF token here if needed -->
+      </form>
+      
+      <!-- Link that triggers account deletion -->
+      <a href="#" onclick="if(confirm('Are you sure you want to delete your account? This action cannot be undone.')) { document.getElementById('deleteForm').submit(); } return false;">
+        Delete Account
+      </a>
+    {% endif %}
+  </nav>
+
+  <!-- Main content -->
+  <main>
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- Service Worker Script -->
+  <script src="static/js/app.js"></script>
+</body>
+</html>
