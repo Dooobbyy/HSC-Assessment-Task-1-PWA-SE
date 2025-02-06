@@ -23,7 +23,7 @@ main {
 .banner {
     padding: 60px;
     text-align: center;
-    background: #1abc9c;
+    background: #1e6bc2;
     color: white;
     font-size: 3em;
 }
@@ -61,24 +61,79 @@ nav a.active {
     font-family: Arial, Helvetica, sans-serif;
     border-collapse: collapse;
     width: 100%;
+    table-layout: fixed; /* Ensure even spacing */
 }
 
-.guess_table td, .guess_table th {
+.guess_table th, .guess_table td {
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 12px;
+    text-align: center;
 }
-
-.guess_table tr:nth-child(even){background-color: #f2f2f2;}
-
-.guess_table tr:hover {background-color: #ddd;}
 
 .guess_table th {
-    padding-top: 12px;
-    padding-bottom: 12px;
-    text-align: left;
-    background-color: #1abc9c;
+    background-color: #1e6bc2;
     color: white;
+    font-size: 1.1em;
 }
+
+.guess_table td {
+    font-size: 1.05em;
+    word-wrap: break-word;
+}
+
+.guess_table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.guess_table tr:hover {
+    background-color: #ddd;
+}
+
+.guess_table th:first-child,
+.guess_table td:first-child {
+    width: 20%; /* Movie Title */
+}
+
+.guess_table th:nth-child(2),
+.guess_table td:nth-child(2) {
+    width: 15%; /* User */
+}
+
+.guess_table th:nth-child(3),
+.guess_table td:nth-child(3) {
+    width: 15%; /* Date */
+}
+
+.guess_table th:nth-child(4),
+.guess_table td:nth-child(4) {
+    width: 10%; /* Rating */
+}
+
+.guess_table th:nth-child(5),
+.guess_table td:nth-child(5) {
+    width: 30%; /* User's Review */
+}
+
+.guess_table th:last-child,
+.guess_table td:last-child {
+    width: 10%; /* Action */
+    text-align: center;
+}
+
+.delete-button {
+    background-color: #1e6bc2;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.delete-button:hover {
+    background-color: #1e6bc2;
+}
+
 
 input[type=text], input[type=email], input[type="password"], input[type="date"], input[type="number"], select, textarea {
     width: 100%;
@@ -92,7 +147,7 @@ input[type=text], input[type=email], input[type="password"], input[type="date"],
 
 input[type=submit] {
     width: 100%;
-    background-color: #4CAF50;
+    background-color: #1e6bc2;
     color: white;
     padding: 14px 20px;
     margin: 8px 0;
@@ -103,11 +158,11 @@ input[type=submit] {
 }
 
 input[type=submit]:hover {
-    background-color: #45a049;
+    background-color: #1e6bc2;
 }
 
 button {
-    background-color: #4CAF50;
+    background-color: #1e6bc2;
     color: white;
     padding: 14px 20px;
     margin: 8px 0;

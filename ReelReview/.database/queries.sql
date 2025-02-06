@@ -18,4 +18,6 @@
 --             FOREIGN KEY(user_id) REFERENCES users(id)
 --             );
 
+-- ALTER TABLE users ADD COLUMN reset_token TEXT;
+
 -- PRAGMA table_info(reviews);

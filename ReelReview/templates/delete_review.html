@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Delete Review</title>
+  <link rel="stylesheet" href="static/css/style.css" />
+  <style>
+    /* Optional inline styling for the delete confirmation page */
+    .confirm-container {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #fefefe;
+    }
+    .confirm-container h1 {
+      color: #c00;
+    }
+    .confirm-container p {
+      font-size: 1.1rem;
+    }
+    .confirm-container form {
+      margin-top: 1rem;
+    }
+    .confirm-container button,
+    .confirm-container a {
+      padding: 10px 20px;
+      text-decoration: none;
+      border: none;
+      border-radius: 4px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    .confirm-container button {
+      background-color: #c00;
+      color: white;
+    }
+    .confirm-container a {
+      background-color: #ccc;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  {% block content %}
+  <div class="confirm-container">
+    <h1>Delete Review</h1>
+    <p>Are you sure you want to delete your review for: <strong>{{ review[1] }}</strong>?</p>
+    <!-- You could include additional review details if desired -->
+    <form method="POST">
+      <button type="submit">Confirm Delete</button>
+      <a href="{{ url_for('dashboard') }}">Cancel</a>
+    </form>
+  </div>
+  {% endblock %}
+</body>
+</html>

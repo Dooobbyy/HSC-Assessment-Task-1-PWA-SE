@@ -5,6 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 import smtplib
 from email.mime.text import MIMEText
+from datetime import datetime
+
 
 app = Flask(__name__)
 app.secret_key = "ReelReview"
@@ -12,7 +14,7 @@ app.secret_key = "ReelReview"
 
 # Initialize database
 def init_db():
-    conn = sqlite3.connect('.database/gtg.db')
+    conn = sqlite3.connect('ReelReview/.database/gtg.db')
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
@@ -65,10 +67,33 @@ def send_verification_email(email, token):
     except Exception as e:
         print(f"Failed to send email: {e}")
 
+# Reset password when trying to login incase the user forgets
+def send_reset_email(email, token):
+    sender_email = "mrdobby07@gmail.com"
+    sender_password = "wssb wrhe xgdh esvu"
+    recipient_email = email
+
+    subject = "Reset Your Password"
+    body = f"Please click the following link to reset your password: http://127.0.0.1:5000/reset_password?token={token}"
+
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = sender_email
+    msg['To'] = recipient_email
+
+    try:
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, recipient_email, msg.as_string())
+        print("Reset email sent!")
+    except Exception as e:
+        print(f"Failed to send reset email: {e}")
+
 
 @app.route('/')
 def index():
-    conn = sqlite3.connect('.database/gtg.db')
+    conn = sqlite3.connect('ReelReview/.database/gtg.db')
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM reviews')
     reviews = db.GetAllGuesses()
@@ -99,7 +124,7 @@ def register():
             flash('Passwords do not match. Please try again.')
             return redirect(url_for('register'))
 
-        conn = sqlite3.connect('.database/gtg.db')
+        conn = sqlite3.connect('ReelReview/.database/gtg.db')
         cursor = conn.cursor()
 
         # Check if username already exists
@@ -144,7 +169,7 @@ def verify_email():
     if not token:
         return "Invalid verification link.", 400
 
-    conn = sqlite3.connect('.database/gtg.db')
+    conn = sqlite3.connect('ReelReview/.database/gtg.db')
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users WHERE verification_token = ?', (token,))
     user = cursor.fetchone()
@@ -167,7 +192,7 @@ def login():
         email = request.form['email']
         password = request.form['password']
         
-        conn = sqlite3.connect('.database/gtg.db')
+        conn = sqlite3.connect('ReelReview/.database/gtg.db')
         cursor = conn.cursor()
         
         # 1. Check if the username exists.
@@ -214,6 +239,87 @@ def login():
 
 
 
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        conn = sqlite3.connect('ReelReview/.database/gtg.db')
+        cursor = conn.cursor()
+        
+        # Check if an account with this email exists
+        cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+        user = cursor.fetchone()
+        
+        if user:
+            # Generate a reset token
+            reset_token = secrets.token_urlsafe(16)
+            # Save the reset token in the user's record
+            cursor.execute('UPDATE users SET reset_token = ? WHERE id = ?', (reset_token, user[0]))
+            conn.commit()
+            # Send the reset email
+            send_reset_email(email, reset_token)
+            flash("Password reset instructions have been sent to your email.", "success")
+        else:
+            flash("No account with that email.", "error")
+        conn.close()
+        return redirect(url_for('login'))
+        
+    return render_template('forgot_password.html')
+
+
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    # For GET requests, token is passed as a query parameter
+    if request.method == 'GET':
+        token = request.args.get('token')
+        if not token:
+            flash("Invalid or missing token.", "error")
+            return redirect(url_for('login'))
+        
+        # Verify that the token exists in the database
+        conn = sqlite3.connect('ReelReview/.database/gtg.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM users WHERE reset_token = ?', (token,))
+        user = cursor.fetchone()
+        conn.close()
+        
+        if not user:
+            flash("Invalid or expired token.", "error")
+            return redirect(url_for('login'))
+        
+        # Token is valid, render the reset password form.
+        return render_template('reset_password.html', token=token)
+    
+    # For POST requests, process the submitted form.
+    if request.method == 'POST':
+        token = request.form.get('token')
+        new_password = request.form['new_password']
+        confirm_password = request.form['confirm_password']
+        
+        if new_password != confirm_password:
+            flash("Passwords do not match.", "error")
+            return redirect(url_for('reset_password', token=token))
+        
+        # Hash the new password and update the database
+        hashed_password = generate_password_hash(new_password)
+        conn = sqlite3.connect('ReelReview/.database/gtg.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM users WHERE reset_token = ?', (token,))
+        user = cursor.fetchone()
+        if not user:
+            flash("Invalid or expired token.", "error")
+            conn.close()
+            return redirect(url_for('login'))
+        
+        cursor.execute('UPDATE users SET password = ?, reset_token = NULL WHERE id = ?', (hashed_password, user[0]))
+        conn.commit()
+        conn.close()
+        flash("Your password has been updated successfully.", "success")
+        return redirect(url_for('login'))
+
+
+
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     if 'user_id' not in session:
@@ -223,7 +329,6 @@ def dashboard():
         # Extract form data
         movie_title = request.form['movie_title']
         review_text = request.form['review_text']
-        review_date = request.form['review_date']
         rating = request.form['rating']
         reviewer_name = session['username']  # Get username from session
 
@@ -239,8 +344,11 @@ def dashboard():
             flash(f'Review text cannot exceed {max_review_length} characters.')
             return redirect(url_for('dashboard'))
 
+        # Automatically set the review_date to the current date
+        review_date = datetime.now().strftime("%Y-%m-%d")
+
         # Insert review into the database if validations pass
-        conn = sqlite3.connect('.database/gtg.db')
+        conn = sqlite3.connect('ReelReview/.database/gtg.db')
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO reviews (title, reviewer_name, review_text, review_date, rating, user_id)
@@ -252,7 +360,7 @@ def dashboard():
         return redirect(url_for('index'))
 
     # Fetch all reviews for the logged-in user
-    conn = sqlite3.connect('.database/gtg.db')
+    conn = sqlite3.connect('ReelReview/.database/gtg.db')
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM reviews WHERE user_id = ?', (session['user_id'],))
     reviews = cursor.fetchall()
@@ -262,9 +370,40 @@ def dashboard():
 
 
 
+
+@app.route('/delete_review/<int:review_id>', methods=['POST'])
+def delete_review(review_id):
+    # Ensure the user is logged in
+    if 'user_id' not in session:
+        flash("You must be logged in to delete a review.", "error")
+        return redirect(url_for('login'))
+    
+    conn = sqlite3.connect('ReelReview/.database/gtg.db')
+    cursor = conn.cursor()
+    
+    # Fetch the review that belongs to the logged-in user
+    cursor.execute("SELECT * FROM reviews WHERE id = ? AND user_id = ?", (review_id, session['user_id']))
+    review = cursor.fetchone()
+    
+    if not review:
+        # Flash an error if the review doesn't exist or the user isn't permitted to delete it.
+        flash("Review not found or you do not have permission to delete it.", "error")
+        conn.close()
+        return redirect(url_for('index'))
+    
+    # Delete the review
+    cursor.execute("DELETE FROM reviews WHERE id = ?", (review_id,))
+    conn.commit()
+    conn.close()
+    flash("Review deleted successfully.", "success")
+    return redirect(url_for('index'))
+
+
+
+
 @app.route('/reviews')
 def reviews():
-    conn = sqlite3.connect('.database/gtg.db')
+    conn = sqlite3.connect('ReelReview/.database/gtg.db')
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM reviews')  # Fetch all reviews (or filter as needed)
     reviews = cursor.fetchall()
@@ -288,7 +427,7 @@ def delete_account():
     
     user_id = session['user_id']
     
-    conn = sqlite3.connect('.database/gtg.db')
+    conn = sqlite3.connect('ReelReview/.database/gtg.db')
     cursor = conn.cursor()
     
     # Option 1: Soft-delete by updating the user's record and setting a deleted flag.

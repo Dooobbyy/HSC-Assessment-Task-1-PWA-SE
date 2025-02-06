@@ -10,7 +10,7 @@ from email.mime.text import MIMEText
 def GetDB():
 
     # Connect to the database and return the connection object
-    db = sqlite3.connect(".database/gtg.db")
+    db = sqlite3.connect("ReelReview/.database/gtg.db")
     db.row_factory = sqlite3.Row
 
     return db
@@ -36,12 +36,12 @@ def CheckLogin(username, password):
     return None
 
 def GetAllGuesses():
-
-    # Connect, query all guesses and then return the data
+    # Connect, query all reviews (guesses) and then return the data
     db = GetDB()
-    guesses =  guesses = db.execute("""SELECT reviews.review_text, reviews.title, reviews.reviewer_name, reviews.review_date, reviews.rating, users.username
-                            FROM reviews JOIN users ON reviews.user_id = users.id
-                            ORDER BY review_date DESC""").fetchall()
-
+    guesses = db.execute("""
+        SELECT reviews.id, reviews.review_text, reviews.title, reviews.reviewer_name, reviews.review_date, reviews.rating, users.username
+        FROM reviews JOIN users ON reviews.user_id = users.id
+        ORDER BY review_date DESC
+    """).fetchall()
     db.close()
     return guesses
