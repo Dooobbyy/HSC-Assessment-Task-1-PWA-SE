@@ -9,8 +9,9 @@ from datetime import datetime
 import bleach
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='', static_folder='static')
 app.secret_key = "ReelReview"
+
 
 
 # Initialize database
@@ -456,4 +457,4 @@ def delete_account():
 
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True, port=5000, ssl_context=('cert.pem', 'key.pem'))
+    app.run(ssl_context=('cert.pem', 'key.pem'), debug=True, port=5000, host='0.0.0.0')
