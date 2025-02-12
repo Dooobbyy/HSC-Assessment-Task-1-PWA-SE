@@ -42,17 +42,6 @@
           
       </style>
 </head>
-<script>
-    document.querySelector("form").addEventListener("submit", function(e) {
-        let password = document.getElementById("password").value;
-        let passwordConfirm = document.getElementById("password_confirm").value;
-    
-        if (password !== passwordConfirm) {
-            alert("Passwords do not match!");
-            e.preventDefault();  // Prevent form submission
-        }
-    });
-</script>
 <body>
     {% block content %}
     <h1>Register</h1>
@@ -99,21 +88,9 @@
     <a href="/login">Login</a>
     {% endblock %}
     
-    <!-- JavaScript for client-side password confirmation check -->
-    <script>
-      document.getElementById("registerForm").addEventListener("submit", function(e) {
-        const password = document.getElementById("password").value;
-        const passwordConfirm = document.getElementById("password_confirm").value;
-        const errorSpan = document.getElementById("password_error");
-        
-        if (password !== passwordConfirm) {
-          e.preventDefault();
-          errorSpan.textContent = "Passwords do not match!";
-        } else {
-          errorSpan.textContent = "";
-        }
-      });
-    </script>
+     <!-- JavaScript for client-side password confirmation check -->
+     <!-- Include external JavaScript file for form validation -->
+    <script src="static/js/register.js"></script>
   </body>
   </html>
   

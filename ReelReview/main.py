@@ -6,6 +6,7 @@ import secrets
 import smtplib
 from email.mime.text import MIMEText
 from datetime import datetime
+import bleach
 
 
 app = Flask(__name__)
@@ -326,11 +327,11 @@ def dashboard():
         return redirect(url_for('login'))
 
     if request.method == 'POST':
-        # Extract form data
-        movie_title = request.form['movie_title']
-        review_text = request.form['review_text']
+        # Extract and sanitize form data using Bleach
+        movie_title = bleach.clean(request.form['movie_title'])
+        review_text = bleach.clean(request.form['review_text'])
         rating = request.form['rating']
-        reviewer_name = session['username']  # Get username from session
+        reviewer_name = session['username']  # This is safe because it comes from the session
 
         # Define maximum allowed lengths
         max_title_length = 50  
@@ -455,4 +456,4 @@ def delete_account():
 
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5000, ssl_context=('cert.pem', 'key.pem'))

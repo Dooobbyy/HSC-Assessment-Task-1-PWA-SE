@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <!-- Allow inline scripts for this example (consider removing in production) -->
-  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self';">
   
   <title>ReelReview</title>
   
@@ -63,9 +63,10 @@
         <!-- Include CSRF token here if needed -->
       </form>
       
+
+      <!-- Delete Account link without inline JS -->
+      <a href="#" id="delete-account">Delete Account</a>
       <!-- Link that triggers account deletion -->
-      <a href="#" onclick="if(confirm('Are you sure you want to delete your account? This action cannot be undone.')) { document.getElementById('deleteForm').submit(); } return false;">
-        Delete Account
       </a>
     {% endif %}
   </nav>
@@ -88,5 +89,10 @@
 
   <!-- Service Worker Script -->
   <script src="static/js/app.js"></script>
+
+  <!-- Service Worker Script -->
+  <script src="static/js/app.js"></script>
+  <!-- Our new main.js file with event listeners -->
+  <script src="static/js/main.js"></script>
 </body>
 </html>
