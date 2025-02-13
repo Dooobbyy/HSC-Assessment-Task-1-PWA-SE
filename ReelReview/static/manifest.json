@@ -62,13 +62,6 @@
     "sizes": "1920x1080",
     "type": "image/png",
     "label": ""
-    },
-    {
-    "src": "icons/mobile_screenshot.png",
-    "sizes": "1080x1920",
-    "type": "image/png",
-    "form_factor": "wide",
-    "label": ""
     }
     ]
 }

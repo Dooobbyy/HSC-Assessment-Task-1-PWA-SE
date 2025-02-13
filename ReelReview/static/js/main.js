@@ -1,4 +1,4 @@
-// static/js/main.js
+
 document.addEventListener('DOMContentLoaded', function () {
     var deleteAccountLink = document.getElementById('delete-account');
     if (deleteAccountLink) {

@@ -423,23 +423,23 @@ def Logout():
 
 @app.route('/delete_account', methods=['POST'])
 def delete_account():
+    print("Delete Account route was called with method POST")
     if 'user_id' not in session:
         flash("You must be logged in to delete your account.")
         return redirect(url_for('login'))
     
     user_id = session['user_id']
-    
     conn = sqlite3.connect('ReelReview/.database/gtg.db')
     cursor = conn.cursor()
     
-    # Option 1: Soft-delete by updating the user's record and setting a deleted flag.
+    # Option 1: Soft-delete the user record
     cursor.execute("""
         UPDATE users
         SET username = 'deleted user', email = 0, verified = 0
         WHERE id = ?
     """, (user_id,))
     
-    # Option 2: Also update reviews to show "deleted user" as the reviewer name.
+    # Option 2: Update reviews to show 'deleted user'
     cursor.execute("""
         UPDATE reviews
         SET reviewer_name = 'deleted user'
@@ -449,10 +449,11 @@ def delete_account():
     conn.commit()
     conn.close()
     
-    # Clear the session so the user is logged out.
+    # Clear session and notify user
     session.clear()
     flash("Your account has been deleted.")
     return redirect(url_for('index'))
+
 
 
 if __name__ == '__main__':
