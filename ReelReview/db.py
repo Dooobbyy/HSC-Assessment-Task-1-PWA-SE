@@ -1,42 +1,26 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+import os
 import sqlite3
-from werkzeug.security import generate_password_hash, check_password_hash
-import secrets
-import smtplib
-from email.mime.text import MIMEText
+from werkzeug.security import check_password_hash
 
-
+DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'ReelReview', '.database', 'gtg.db')
 
 def GetDB():
-
-    # Connect to the database and return the connection object
-    db = sqlite3.connect("ReelReview/.database/gtg.db")
+    db = sqlite3.connect(DATABASE_PATH)
     db.row_factory = sqlite3.Row
-
     return db
 
 def CheckLogin(username, password):
-
     db = GetDB()
-
-    # Ask the database for a single user matching the provided name
-    user = db.execute("SELECT * FROM Users WHERE username=? COLLATE NOCASE", (username,)).fetchone()
+    # Note: Using lowercase table name "users"
+    user = db.execute("SELECT * FROM users WHERE username=? COLLATE NOCASE", (username,)).fetchone()
     
-    print (user['password'])
-    print (password)
-
-    # Do they exist?
-    if user is not None:
-        # OK they exist, is their password correct
-        if check_password_hash(user['password'], password):
-            # They got it right, return their details 
-            return user
-        
-    # If we get here, the username or password failed.
+    if user is not None and check_password_hash(user['password'], password):
+        return user
+    
+    db.close()
     return None
 
 def GetAllGuesses():
-    # Connect, query all reviews (guesses) and then return the data
     db = GetDB()
     guesses = db.execute("""
         SELECT reviews.id, reviews.review_text, reviews.title, reviews.reviewer_name, reviews.review_date, reviews.rating, users.username

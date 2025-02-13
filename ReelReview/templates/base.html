@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <!-- Allow inline scripts for this example (consider removing in production) -->
   <meta http-equiv="Content-Security-Policy" content="script-src 'self';">
   
   <title>ReelReview</title>
@@ -41,8 +40,6 @@
 </head>
 
 <body>
-  
-  
   <h1 class="banner">ReelReview</h1>
 
   <!-- Navigation -->
@@ -58,17 +55,13 @@
       <a href="{{ url_for('index') }}">
         <i class="fas fa-home"></i> Home
       </a>
-         
-
+      
       <!-- Hidden form for deleting the account -->
       <form id="deleteForm" action="{{ url_for('delete_account') }}" method="POST" style="display: none;">
-        <!-- Include CSRF token here if needed -->
+        {{ csrf_token() }}
       </form>
-
       <!-- Delete Account link -->
       <a href="#" id="delete-account">Delete Account</a>
-
-      </a>
     {% endif %}
   </nav>
   {% with messages = get_flashed_messages(with_categories=True) %}
@@ -88,10 +81,8 @@
     {% endblock %}
   </main>
 
-  <!-- Service Worker Script -->
   <script src="js/app.js"></script>
-
-  <!-- Our new main.js file with event listeners -->
   <script src="js/main.js"></script>
 </body>
 </html>
+

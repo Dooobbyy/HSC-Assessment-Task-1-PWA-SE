@@ -3,6 +3,7 @@ const CURRENT_CACHE = `main-${CACHE_VERSION}`;
 
 const cacheFiles = [
     "/",
+    "/index.html",
     "/css/style.css",
     "/js/app.js",
     "/js/main.js",
